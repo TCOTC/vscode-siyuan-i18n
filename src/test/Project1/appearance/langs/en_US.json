@@ -1,0 +1,9 @@
+{
+  "cloudIntro1": "Test message 1",
+  "cloudIntro2": "Test message 2",
+  "syncOfficialProviderIntro": "Official sync provider",
+  "_kernel": {
+    "122": "Kernel message 122",
+    "214": "Kernel message 214"
+  }
+}

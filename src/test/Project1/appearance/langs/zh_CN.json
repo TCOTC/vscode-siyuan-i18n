@@ -1,0 +1,9 @@
+{
+  "cloudIntro1": "测试文案1",
+  "cloudIntro2": "测试文案2",
+  "syncOfficialProviderIntro": "官方同步服务提供商",
+  "_kernel": {
+    "122": "内核提示122",
+    "214": "内核提示214"
+  }
+}

@@ -1,0 +1,21 @@
+# EditorConfig 帮助跨编辑器和IDE保持一致的编码风格
+# https://editorconfig.org
+
+root = true
+
+# 所有文件
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# TypeScript/JavaScript 文件
+[*.{ts,tsx,js,jsx,json}]
+indent_size = 2
+
+# Markdown 文件
+[*.md]
+trim_trailing_whitespace = false

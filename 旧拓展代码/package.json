@@ -1,0 +1,35 @@
+{
+  "name": "vscode-siyuan-i18n",
+  "publisher": "siyuan-note",
+  "displayName": "%vscode-siyuan-i18n.extension.displayName%",
+  "description": "%vscode-siyuan-i18n.extension.description%",
+  "version": "0.1.0",
+  "engines": { "vscode": "^1.74.0" },
+  "categories": ["Other"],
+  "activationEvents": ["workspaceContains:**/appearance/langs/*.json"],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      { "command": "vscode-siyuan-i18n.openAtLine", "title": "SiYuan i18n: Open i18n line" },
+      { "command": "vscode-siyuan-i18n.findReferencesToKey", "title": "SiYuan i18n: Find references to key" },
+      { "command": "vscode-siyuan-i18n.checkRipgrep", "title": "SiYuan i18n: 检查 ripgrep 是否可用" }
+    ],
+    "configuration": {
+      "title": "SiYuan i18n",
+      "properties": {
+        "vscode-siyuan-i18n.definitionLanguages": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["zh_CN", "en_US"],
+          "description": "%vscode-siyuan-i18n.config.definitionLanguages.description%"
+        },
+        "vscode-siyuan-i18n.hoverLanguages": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["zh_CN", "en_US"],
+          "description": "%vscode-siyuan-i18n.config.hoverLanguages.description%"
+        }
+      }
+    }
+  }
+}

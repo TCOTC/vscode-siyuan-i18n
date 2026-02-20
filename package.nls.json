@@ -1,0 +1,6 @@
+{
+  "vscode-siyuan-i18n.extension.displayName": "SiYuan i18n",
+  "vscode-siyuan-i18n.extension.description": "Go to Definition (Ctrl+click) and Hover for window.siyuan.languages.* — jump to app/appearance/langs/*.json and view multi-locale translations.",
+  "vscode-siyuan-i18n.config.definitionLanguages.description": "Language list shown when using Go to Definition (Ctrl+click). Use locale codes such as en_US, zh_CN. Leave empty to use all languages (sorted by filename).",
+  "vscode-siyuan-i18n.config.hoverLanguages.description": "Language list and order shown on hover. Use locale codes such as en_US, zh_CN. Leave empty to use all languages (sorted by filename)."
+}
