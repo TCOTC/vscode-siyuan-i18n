@@ -54,24 +54,24 @@ suite("单项目工作区测试套件", () => {
   suite("test-simple.ts 测试组 - 悬停", () => {
     // TODO 测试括号和引号的悬停
     test("简单属性悬停显示翻译", async () => {
-      // 第1行：const msg1 = window.siyuan.languages.cloudIntro1;
-      await getAndVerifyHover(simpleDoc, new vscode.Position(1, 42), [
+      // 第2行：const msg1 = window.siyuan.languages.cloudIntro1;
+      await getAndVerifyHover(simpleDoc, new vscode.Position(2, 42), [
         "测试文案1",
         "Test message 1",
       ]);
     });
 
     test("简单属性括号使用双引号", async () => {
-      // 第2行：const msg2 = window.siyuan.languages["cloudIntro1"];
-      await getAndVerifyHover(simpleDoc, new vscode.Position(2, 43), [
+      // 第3行：const msg2 = window.siyuan.languages["cloudIntro1"];
+      await getAndVerifyHover(simpleDoc, new vscode.Position(3, 43), [
         "测试文案1",
         "Test message 1",
       ]);
     });
 
     test("简单属性括号使用单引号", async () => {
-      // 第3行：const msg3 = window.siyuan.languages['cloudIntro2'];
-      await getAndVerifyHover(simpleDoc, new vscode.Position(3, 43), [
+      // 第4行：const msg3 = window.siyuan.languages['cloudIntro2'];
+      await getAndVerifyHover(simpleDoc, new vscode.Position(4, 43), [
         "测试文案2",
         "Test message 2",
       ]);
@@ -81,72 +81,72 @@ suite("单项目工作区测试套件", () => {
   suite("test-nested.ts 测试组 - 定义跳转", () => {
     // TODO 每一行都要测试跳转、括号和引号也要测试
     test("简单属性定义跳转功能正常", async () => {
-      // 第1行：const msg1 = window.siyuan.languages.cloudIntro1;
+      // 第2行：const msg1 = window.siyuan.languages.cloudIntro1;
       // 在 cloudIntro1 上触发定义跳转
-      await getAndVerifyDefinition(simpleDoc, new vscode.Position(1, 42), "zh_CN.json");
+      await getAndVerifyDefinition(simpleDoc, new vscode.Position(2, 42), "zh_CN.json");
     });
   });
 
   suite("test-nested.ts 测试组 - 悬停", () => {
     test("嵌套括号属性悬停显示翻译", async () => {
-      // 第1行：const msg1 = window.siyuan.languages["_kernel"][214];
+      // 第2行：const msg1 = window.siyuan.languages["_kernel"][214];
       // 在 [214] 上触发悬停
-      await getAndVerifyHover(nestedDoc, new vscode.Position(1, 52), [
+      await getAndVerifyHover(nestedDoc, new vscode.Position(2, 52), [
         "内核提示214",
         "Kernel message 214",
       ]);
     });
 
     test("非最后一部分不显示悬停", async () => {
-      // 第1行：const msg1 = window.siyuan.languages["_kernel"][214];
+      // 第2行：const msg1 = window.siyuan.languages["_kernel"][214];
       // 在 _kernel 上触发悬停（不是最后一部分）
-      await verifyHoverNotContains(nestedDoc, new vscode.Position(1, 42), "内核提示");
+      await verifyHoverNotContains(nestedDoc, new vscode.Position(2, 42), "内核提示");
     });
 
     test("括号表示法使用单引号", async () => {
-      // 第2行：const msg2 = window.siyuan.languages['_kernel'][214];
-      await getAndVerifyHover(nestedDoc, new vscode.Position(2, 52), [
+      // 第3行：const msg2 = window.siyuan.languages['_kernel'][214];
+      await getAndVerifyHover(nestedDoc, new vscode.Position(3, 52), [
         "内核提示214",
         "Kernel message 214",
       ]);
     });
 
     test("混合表示法：点号后接数字括号", async () => {
-      // 第3行：const msg3 = window.siyuan.languages._kernel[214];
-      await getAndVerifyHover(nestedDoc, new vscode.Position(3, 47), [
+      // 第4行：const msg3 = window.siyuan.languages._kernel[214];
+      await getAndVerifyHover(nestedDoc, new vscode.Position(4, 47), [
         "内核提示214",
         "Kernel message 214",
       ]);
     });
 
     test("全部字符串键使用双引号", async () => {
-      // 第4行：const msg4 = window.siyuan.languages["_kernel"]["214"];
-      await getAndVerifyHover(nestedDoc, new vscode.Position(4, 52), [
-        "内核提示214",
-        "Kernel message 214",
-      ]);
-    });
-
-    test("全部字符串键使用单引号", async () => {
-      // 第5行：const msg5 = window.siyuan.languages['_kernel']['214'];
+      // 第5行：const msg4 = window.siyuan.languages["_kernel"]["214"];
       await getAndVerifyHover(nestedDoc, new vscode.Position(5, 52), [
         "内核提示214",
         "Kernel message 214",
       ]);
     });
 
-    test("混合引号表示法", async () => {
-      // 第6行：const msg6 = window.siyuan.languages['_kernel']["122"];
+    test("全部字符串键使用单引号", async () => {
+      // 第6行：const msg5 = window.siyuan.languages['_kernel']['214'];
       await getAndVerifyHover(nestedDoc, new vscode.Position(6, 52), [
+        "内核提示214",
+        "Kernel message 214",
+      ]);
+    });
+
+    test("混合引号表示法", async () => {
+      // 第7行：const msg6 = window.siyuan.languages['_kernel']["122"];
+      await getAndVerifyHover(nestedDoc, new vscode.Position(7, 52), [
         "内核提示122",
         "Kernel message 122",
       ]);
     });
 
     test("括号 token 悬停（单引号）", async () => {
-      // 第2行：const msg2 = window.siyuan.languages['_kernel'][214];
+      // 第3行：const msg2 = window.siyuan.languages['_kernel'][214];
       // 在右括号 ] 上触发悬停
-      await getAndVerifyHover(nestedDoc, new vscode.Position(2, 52), [
+      await getAndVerifyHover(nestedDoc, new vscode.Position(3, 52), [
         "内核提示214",
         "Kernel message 214",
       ]);
@@ -156,9 +156,9 @@ suite("单项目工作区测试套件", () => {
   suite("test-nested.ts 测试组 - 定义跳转", () => {
     // TODO 每一行都要测试跳转、括号和引号也要测试
     test("嵌套属性定义跳转功能正常", async () => {
-      // 第6行：const msg6 = window.siyuan.languages['_kernel']["122"];
+      // 第7行：const msg6 = window.siyuan.languages['_kernel']["122"];
       // 在 [122] 上触发定义跳转
-      await getAndVerifyDefinition(nestedDoc, new vscode.Position(6, 52));
+      await getAndVerifyDefinition(nestedDoc, new vscode.Position(7, 52));
     });
   });
 });
@@ -184,7 +184,7 @@ suite("多项目工作区测试套件", () => {
     const testFile = path.join(Project1Path, "test-simple.ts");
     const doc = await openAndShowDocument(testFile);
 
-    await getAndVerifyHover(doc, new vscode.Position(1, 42), ["测试文案1", "Test message 1"]);
+    await getAndVerifyHover(doc, new vscode.Position(2, 42), ["测试文案1", "Test message 1"]);
   });
 
   test("第二个项目能正常工作", async function () {
@@ -206,7 +206,7 @@ suite("多项目工作区测试套件", () => {
     const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
       "vscode.executeHoverProvider",
       doc2.uri,
-      new vscode.Position(1, 37),
+      new vscode.Position(2, 37),
     );
 
     assert.ok(hovers && hovers.length > 0, "第二个项目应该能找到语言文件");
