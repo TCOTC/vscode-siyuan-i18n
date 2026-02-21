@@ -66,8 +66,7 @@ export async function findReferencesToKey(
   if (!workspaceFolder || !key) {
     return [];
   }
-  const result = await findReferencesToKeyWithRipgrep(workspaceFolder, key, token);
-  return result !== null ? result : [];
+  return findReferencesToKeyWithRipgrep(workspaceFolder, key, token);
 }
 
 /**

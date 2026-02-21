@@ -5,7 +5,7 @@
   "description": "%vscode-siyuan-i18n.extension.description%",
   "version": "0.1.0",
   "engines": {
-    "vscode": "^1.80.0"
+    "vscode": "^1.90.0"
   },
   "categories": [
     "Other"

@@ -31,9 +31,22 @@ async function collectDefinitionLocations(
     }
     const lineIndex = findKeyLineInContent(fileData.content, key);
     if (lineIndex >= 0) {
-      locations.push(
-        new vscode.Location(vscode.Uri.file(jsonPath), new vscode.Position(lineIndex, 0)),
-      );
+      const line = fileData.content.split(/\r?\n/)[lineIndex];
+      // 找到 JSON key 的范围并选中
+      const match = line.match(/^\s*"([^"]*)"\s*:/);
+      let range: vscode.Range;
+      if (match) {
+        const openQuote = line.indexOf('"');
+        const closeQuote = openQuote + match[1].length + 1;
+        range = new vscode.Range(
+          new vscode.Position(lineIndex, openQuote),
+          new vscode.Position(lineIndex, closeQuote + 1),
+        );
+      } else {
+        const pos = new vscode.Position(lineIndex, 0);
+        range = new vscode.Range(pos, pos);
+      }
+      locations.push(new vscode.Location(vscode.Uri.file(jsonPath), range));
     }
   }
   return locations;

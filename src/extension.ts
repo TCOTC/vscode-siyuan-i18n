@@ -58,9 +58,27 @@ export function activate(context: vscode.ExtensionContext) {
         }
         const uri = vscode.Uri.file(filePath);
         const doc = await vscode.workspace.openTextDocument(uri);
-        const pos = new vscode.Position(lineIndex, 0);
+        const line = doc.lineAt(lineIndex).text;
+
+        // 从行内容中找到 JSON key 的范围并选中
+        // 正则匹配 "key" 的位置
+        const match = line.match(/^\s*"([^"]*)"\s*:/);
+        let selection: vscode.Range;
+
+        if (match) {
+          const openQuote = line.indexOf('"');
+          const closeQuote = openQuote + match[1].length + 1;
+          selection = new vscode.Range(
+            new vscode.Position(lineIndex, openQuote),
+            new vscode.Position(lineIndex, closeQuote + 1),
+          );
+        } else {
+          // 找不到 key 时光标在行首
+          selection = new vscode.Range(new vscode.Position(lineIndex, 0), new vscode.Position(lineIndex, 0));
+        }
+
         await vscode.window.showTextDocument(doc, {
-          selection: new vscode.Range(pos, pos),
+          selection,
           preview: false,
         });
       },

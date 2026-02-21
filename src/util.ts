@@ -325,6 +325,9 @@ export function buildChainRipgrepPatterns(keyPath: string): string[] {
     const isNumber = /^\d+$/.test(seg);
     const options: string[] = [];
     if (isNumber) {
+      // 数字 key 可能的引用方式：["106"]、['106']、[106]
+      options.push('\\["' + escaped + '"\\]');
+      options.push("\\['" + escaped + "'\\]");
       options.push("\\[" + escaped + "\\]");
     } else {
       options.push('\\["' + escaped + '"\\]');
@@ -351,17 +354,34 @@ export function buildChainRipgrepPatterns(keyPath: string): string[] {
 
 /**
  * 返回用于执行 ripgrep 的命令路径。
+ * 从 VS Code 内置的 @vscode/ripgrep 中获取。
  */
-export function getRipgrepPath(): string {
-  if (extensionPath) {
+export function getRipgrepPath(): { rgPath: string | null; errMsg: string | null } {
+  try {
+    const appRoot = vscode.env.appRoot;
+    if (!appRoot) {
+      return {
+        rgPath: null,
+        errMsg: `无法获取 ${vscode.env.appName || "VS Code"} 的安装路径 (appRoot)`,
+      };
+    }
     const isWin = process.platform === "win32";
     const binName = isWin ? "rg.exe" : "rg";
-    const bundled = path.join(extensionPath, "bin", binName);
-    if (fs.existsSync(bundled)) {
-      return bundled;
+    const rgPath = path.join(appRoot, "node_modules", "@vscode", "ripgrep", "bin", binName);
+    const exists = fs.existsSync(rgPath);
+    if (!exists) {
+      return {
+        rgPath: null,
+        errMsg: `无法从路径 ${rgPath} 找到 ripgrep 程序`,
+      };
     }
+    return { rgPath, errMsg: null };
+  } catch (e) {
+    return {
+      rgPath: null,
+      errMsg: `获取 ripgrep 路径时发生异常: ${e instanceof Error ? e.message : String(e)}`,
+    };
   }
-  return "rg";
 }
 
 /**
@@ -371,8 +391,14 @@ export function findReferencesToKeyWithRipgrep(
   workspaceFolder: vscode.WorkspaceFolder,
   key: string,
   token: vscode.CancellationToken,
-): Promise<vscode.Location[] | null> {
+): Promise<vscode.Location[]> {
   return new Promise((resolve, _reject) => {
+    const { rgPath } = getRipgrepPath();
+    if (!rgPath) {
+      resolve([]);
+      return;
+    }
+
     const root = workspaceFolder.uri.fsPath;
     const isChain = key.includes(".");
     const patterns = isChain
@@ -380,10 +406,15 @@ export function findReferencesToKeyWithRipgrep(
       : (() => {
           const escapedKey = escapeRegex(key);
           const ident = /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key);
+          const isNumber = /^\d+$/.test(key);
           const list = [
             'window\\.siyuan\\.languages\\["' + escapedKey + '"\\]',
-            "window\\.siyuan\\.languages\\['" + escapedKey.replace(/'/g, "\\'") + "'\\]",
+            "window\\.siyuan\\.languages\\['" + escapedKey + "'\\]",
           ];
+          if (isNumber) {
+            // 数字 key 可能的直接数字引用方式
+            list.push("window\\.siyuan\\.languages\\[" + escapedKey + "\\]");
+          }
           if (ident) {
             list.unshift("window\\.siyuan\\.languages\\." + escapedKey + "\\b");
           }
@@ -406,8 +437,6 @@ export function findReferencesToKeyWithRipgrep(
       args.push("-e", p);
     }
     args.push("--", root);
-
-    const rgPath = getRipgrepPath();
     const proc = spawn(rgPath, args, {
       cwd: root,
       shell: false,
@@ -415,7 +444,7 @@ export function findReferencesToKeyWithRipgrep(
     const chunks: Buffer[] = [];
     proc.stdout.on("data", (c) => chunks.push(c));
     proc.stderr.on("data", () => {});
-    proc.on("error", () => resolve(null));
+    proc.on("error", () => resolve([]));
     proc.on("close", (code) => {
       if (token.isCancellationRequested) {
         resolve([]);
@@ -426,7 +455,7 @@ export function findReferencesToKeyWithRipgrep(
         return;
       }
       if (code !== 0) {
-        resolve(null);
+        resolve([]);
         return;
       }
       const out = Buffer.concat(chunks).toString("utf8");
@@ -461,7 +490,14 @@ export function findReferencesToKeyWithRipgrep(
  */
 export function checkRipgrepAvailable(): Promise<{ ok: boolean; message: string }> {
   return new Promise((resolve) => {
-    const rgPath = getRipgrepPath();
+    const { rgPath, errMsg } = getRipgrepPath();
+    if (!rgPath) {
+      resolve({
+        ok: false,
+        message: errMsg || "未知错误",
+      });
+      return;
+    }
     const proc = spawn(rgPath, ["--version"], {
       shell: false,
     });
@@ -469,11 +505,10 @@ export function checkRipgrepAvailable(): Promise<{ ok: boolean; message: string 
     proc.stdout.on("data", (c) => chunks.push(c));
     proc.stderr.on("data", (c) => chunks.push(c));
     proc.on("error", (_err) => {
-      const hint =
-        rgPath !== "rg"
-          ? "内置 rg 执行失败，请检查扩展 bin 目录下的 rg 是否完整。"
-          : "未找到 ripgrep。请安装（如 winget install BurntSushi.ripgrep）或将 rg.exe 放入本扩展目录的 bin 文件夹。";
-      resolve({ ok: false, message: hint });
+      resolve({
+        ok: false,
+        message: "@vscode/ripgrep 的 rg 执行失败，请检查安装或 postinstall 下载是否完整。",
+      });
     });
     proc.on("close", (code, signal) => {
       const out = Buffer.concat(chunks).toString("utf8").trim();
