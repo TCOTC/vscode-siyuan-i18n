@@ -1,5 +1,12 @@
 import * as vscode from "vscode";
-import { findReferencesToKeyWithRipgrep, CachedFile } from "./util";
+import * as path from "path";
+import * as fs from "fs";
+import { spawn } from "child_process";
+import {
+  buildChainRipgrepPatterns,
+  escapeRegex,
+  CachedFile,
+} from "./util";
 
 /**
  * 从 JSON 内容前若干行推断当前行的"父路径"，用于嵌套 key。
@@ -58,15 +65,107 @@ export function getJsonKeyAtPosition(
 /**
  * 在工作区中搜索使用该 i18n key 的代码位置。
  */
-export async function findReferencesToKey(
+export function findReferencesToKey(
   workspaceFolder: vscode.WorkspaceFolder | undefined,
   key: string,
   token: vscode.CancellationToken,
 ): Promise<vscode.Location[]> {
-  if (!workspaceFolder || !key) {
-    return [];
-  }
-  return findReferencesToKeyWithRipgrep(workspaceFolder, key, token);
+  return new Promise((resolve, _reject) => {
+    if (!workspaceFolder || !key) {
+      resolve([]);
+      return;
+    }
+
+    const { rgPath } = getRipgrepPath();
+    if (!rgPath) {
+      resolve([]);
+      return;
+    }
+
+    const root = workspaceFolder.uri.fsPath;
+    const isChain = key.includes(".");
+    const patterns = isChain
+      ? buildChainRipgrepPatterns(key)
+      : (() => {
+          const escapedKey = escapeRegex(key);
+          const ident = /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key);
+          const isNumber = /^\d+$/.test(key);
+          const list = [
+            'window\\.siyuan\\.languages\\["' + escapedKey + '"\\]',
+            "window\\.siyuan\\.languages\\['" + escapedKey + "'\\]",
+          ];
+          if (isNumber) {
+            // 数字 key 可能的直接数字引用方式
+            list.push("window\\.siyuan\\.languages\\[" + escapedKey + "\\]");
+          }
+          if (ident) {
+            list.unshift("window\\.siyuan\\.languages\\." + escapedKey + "\\b");
+          }
+          return list;
+        })();
+    const args = [
+      "-n",
+      "--column",
+      "-o",
+      "--glob",
+      "*.ts",
+      "--glob",
+      "*.js",
+      "--glob",
+      "*.tsx",
+      "--glob",
+      "*.jsx",
+    ];
+    for (const p of patterns) {
+      args.push("-e", p);
+    }
+    args.push("--", root);
+    const proc = spawn(rgPath, args, {
+      cwd: root,
+      shell: false,
+    });
+    const chunks: Buffer[] = [];
+    proc.stdout.on("data", (c) => chunks.push(c));
+    proc.stderr.on("data", () => {});
+    proc.on("error", () => resolve([]));
+    proc.on("close", (code) => {
+      if (token.isCancellationRequested) {
+        resolve([]);
+        return;
+      }
+      if (code === 1) {
+        resolve([]);
+        return;
+      }
+      if (code !== 0) {
+        resolve([]);
+        return;
+      }
+      const out = Buffer.concat(chunks).toString("utf8");
+      const locations: vscode.Location[] = [];
+      for (const line of out.split(/\r?\n/)) {
+        if (!line.trim()) {
+          continue;
+        }
+        const parts = line.split(":");
+        if (parts.length < 4) {
+          continue;
+        }
+        const matchText = parts.pop()!;
+        const col = parseInt(parts.pop()!, 10);
+        const lineNum = parseInt(parts.pop()!, 10);
+        const filePath = parts.join(":");
+        if (!filePath || isNaN(lineNum) || isNaN(col)) {
+          continue;
+        }
+        const uri = vscode.Uri.file(filePath);
+        const start = new vscode.Position(lineNum - 1, col - 1);
+        const end = new vscode.Position(lineNum - 1, col - 1 + matchText.length);
+        locations.push(new vscode.Location(uri, new vscode.Range(start, end)));
+      }
+      resolve(locations);
+    });
+  });
 }
 
 /**
@@ -112,4 +211,74 @@ export function createJsonDefinitionProvider(_cache: Map<string, CachedFile>) {
       return locations;
     },
   };
+}
+
+/**
+ * 返回 ripgrep 可执行文件的路径。
+ * 来自 VS Code 内置的 `@vscode/ripgrep`。
+ */
+export function getRipgrepPath(): { rgPath: string | null; errMsg: string | null } {
+  try {
+    const appRoot = vscode.env.appRoot;
+    if (!appRoot) {
+      return {
+        rgPath: null,
+        errMsg: `无法获取 ${vscode.env.appName || "VS Code"} 的安装路径 (vscode.env.appRoot)`,
+      };
+    }
+    // 还可以参考 todo-tree 拓展的 ripgrepPath 函数 https://github.com/Gruntfuggly/todo-tree/blob/a6f60e0ce830c4649ac34fc05e5a1799ec91d151/src/config.js#L82-L113
+    const binName = process.platform === "win32" ? "rg.exe" : "rg";
+    const rgPath = path.join(appRoot, "node_modules", "@vscode", "ripgrep", "bin", binName);
+    if (!fs.existsSync(rgPath)) {
+      return {
+        rgPath: null,
+        errMsg: `无法从路径 ${rgPath} 找到 ripgrep 可执行文件`,
+      };
+    }
+    return { rgPath, errMsg: null };
+  } catch (e) {
+    return {
+      rgPath: null,
+      errMsg: `获取 ripgrep 路径时发生异常: ${e instanceof Error ? e.message : String(e)}`,
+    };
+  }
+}
+
+/**
+ * 检查当前环境是否可用 ripgrep (rg)。
+ */
+export function checkRipgrepAvailable(): Promise<{ ok: boolean; message: string }> {
+  return new Promise((resolve) => {
+    const { rgPath, errMsg } = getRipgrepPath();
+    if (!rgPath) {
+      resolve({
+        ok: false,
+        message: errMsg || "未知错误",
+      });
+      return;
+    }
+    const proc = spawn(rgPath, ["--version"], {
+      shell: false,
+    });
+    const chunks: Buffer[] = [];
+    proc.stdout.on("data", (c) => chunks.push(c));
+    proc.stderr.on("data", (c) => chunks.push(c));
+    proc.on("error", (err) => {
+      resolve({
+        ok: false,
+        message: `ripgrep 执行失败，错误信息: ${err.name} - ${err.message}`,
+      });
+    });
+    proc.on("close", (code, signal) => {
+      const out = Buffer.concat(chunks).toString("utf8").trim();
+      if (code === 0 || code === 1) {
+        resolve({ ok: true, message: out || "" });
+      } else {
+        resolve({
+          ok: false,
+          message: `ripgrep 退出码 ${code}${signal ? `，signal: ${signal}` : ""}`,
+        });
+      }
+    });
+  });
 }

@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import { setExtensionPath, checkRipgrepAvailable, CachedFile } from "./util";
+import { setExtensionPath, CachedFile } from "./util";
 import { createDefinitionProvider } from "./definition";
 import { createHoverProvider } from "./hover";
-import { createReferenceProvider, createJsonDefinitionProvider } from "./reference";
+import { createReferenceProvider, createJsonDefinitionProvider, checkRipgrepAvailable } from "./reference";
 
 export function activate(context: vscode.ExtensionContext) {
   setExtensionPath(context.extensionPath);
@@ -41,9 +41,9 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("vscode-siyuan-i18n.checkRipgrep", async () => {
       const { ok, message } = await checkRipgrepAvailable();
       if (ok) {
-        vscode.window.showInformationMessage(`ripgrep 可用：${message}`);
+        vscode.window.showInformationMessage(`ripgrep 可用：${message ? message : "未知版本"}`);
       } else {
-        vscode.window.showWarningMessage(`SiYuan i18n：${message}`);
+        vscode.window.showWarningMessage(`ripgrep 不可用：${message}`);
       }
     }),
   );
