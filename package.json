@@ -18,15 +18,15 @@
     "commands": [
       {
         "command": "vscode-siyuan-i18n.openAtLine",
-        "title": "SiYuan i18n: Open i18n line"
+        "title": "%vscode-siyuan-i18n.commands.openAtLine.title%"
       },
       {
         "command": "vscode-siyuan-i18n.findReferencesToKey",
-        "title": "SiYuan i18n: Find references to key"
+        "title": "%vscode-siyuan-i18n.commands.findReferencesToKey.title%"
       },
       {
         "command": "vscode-siyuan-i18n.checkRipgrep",
-        "title": "SiYuan i18n: 检查 ripgrep 是否可用"
+        "title": "%vscode-siyuan-i18n.commands.checkRipgrep.title%"
       }
     ],
     "configuration": {

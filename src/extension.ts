@@ -88,8 +88,6 @@ export function activate(context: vscode.ExtensionContext) {
   const selector = [
     { language: "javascript" },
     { language: "typescript" },
-    { language: "javascriptreact" },
-    { language: "typescriptreact" },
   ];
 
   // 注册定义提供程序（用于 TypeScript/JavaScript 中的 i18n key）

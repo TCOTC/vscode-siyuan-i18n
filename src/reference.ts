@@ -226,16 +226,28 @@ export function getRipgrepPath(): { rgPath: string | null; errMsg: string | null
         errMsg: `无法获取 ${vscode.env.appName || "VS Code"} 的安装路径 (vscode.env.appRoot)`,
       };
     }
-    // 还可以参考 todo-tree 拓展的 ripgrepPath 函数 https://github.com/Gruntfuggly/todo-tree/blob/a6f60e0ce830c4649ac34fc05e5a1799ec91d151/src/config.js#L82-L113
     const binName = process.platform === "win32" ? "rg.exe" : "rg";
-    const rgPath = path.join(appRoot, "node_modules", "@vscode", "ripgrep", "bin", binName);
-    if (!fs.existsSync(rgPath)) {
-      return {
-        rgPath: null,
-        errMsg: `无法从路径 ${rgPath} 找到 ripgrep 可执行文件`,
-      };
+    
+    // 尝试多个可能的路径
+    // 参考了 todo-tree 拓展的 ripgrepPath 函数 https://github.com/Gruntfuggly/todo-tree/blob/a6f60e0ce830c4649ac34fc05e5a1799ec91d151/src/config.js#L82-L113
+    // 以及 https://news.ycombinator.com/item?id=20363986 (2019-07-05)
+    const possiblePaths = [
+      path.join(appRoot, "node_modules", "@vscode", "ripgrep", "bin", binName), // 开发时使用的 1.109 版本，Windows 和 macOS 都能在该路径找到
+      path.join(appRoot, "node_modules.asar.unpacked", "@vscode", "ripgrep", "bin", binName),
+      path.join(appRoot, "node_modules", "vscode-ripgrep", "bin", binName),
+      path.join(appRoot, "node_modules.asar.unpacked", "vscode-ripgrep", "bin", binName),
+    ];
+    
+    for (const rgPath of possiblePaths) {
+      if (fs.existsSync(rgPath)) {
+        return { rgPath, errMsg: null };
+      }
     }
-    return { rgPath, errMsg: null };
+    
+    return {
+      rgPath: null,
+      errMsg: `无法从以下路径找到 ripgrep 可执行文件:\n[${possiblePaths.join("]\n[")}]`,
+    };
   } catch (e) {
     return {
       rgPath: null,
