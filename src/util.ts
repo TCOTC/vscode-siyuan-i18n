@@ -4,6 +4,7 @@ import * as fs from "fs";
 import { promises as fsp } from "fs";
 import ts from "typescript";
 import { spawn } from "child_process";
+import ignore from "ignore";
 
 export interface CachedFile {
   content: string;
@@ -208,6 +209,79 @@ export async function getCachedFile(
 }
 
 const langsDirCache = new Map<string, string | null>();
+const gitignoreMatcherCache = new Map<string, ((fsPath: string) => boolean) | null>();
+
+function normalizeFsPath(fsPath: string): string {
+  return fsPath.replace(/\\/g, "/");
+}
+
+function normalizeGitignorePattern(pattern: string, relBase: string): string | null {
+  let raw = pattern.trim();
+  if (!raw) {
+    return null;
+  }
+  if (raw.startsWith("#") && !raw.startsWith("\\#")) {
+    return null;
+  }
+  let negate = false;
+  if (raw.startsWith("!")) {
+    negate = true;
+    raw = raw.slice(1);
+  }
+  if (!raw) {
+    return null;
+  }
+  if (raw.startsWith("/")) {
+    raw = raw.slice(1);
+  }
+  if (relBase) {
+    raw = `${relBase}/${raw}`;
+  }
+  return negate ? `!${raw}` : raw;
+}
+
+async function getGitignoreMatcher(
+  workspaceFolder: vscode.WorkspaceFolder,
+): Promise<((fsPath: string) => boolean) | null> {
+  const key = workspaceFolder.uri.fsPath;
+  if (gitignoreMatcherCache.has(key)) {
+    return gitignoreMatcherCache.get(key)!;
+  }
+  const gitignoreUris = await vscode.workspace.findFiles(
+    new vscode.RelativePattern(workspaceFolder.uri, "**/.gitignore"),
+  );
+  if (gitignoreUris.length === 0) {
+    gitignoreMatcherCache.set(key, null);
+    return null;
+  }
+  const ig = ignore();
+  for (const uri of gitignoreUris) {
+    let content = "";
+    try {
+      content = await fsp.readFile(uri.fsPath, "utf8");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_e) {
+      continue;
+    }
+    const baseDir = path.dirname(uri.fsPath);
+    const relBase = normalizeFsPath(path.relative(workspaceFolder.uri.fsPath, baseDir));
+    for (const line of content.split(/\r?\n/)) {
+      const normalized = normalizeGitignorePattern(line, relBase);
+      if (normalized) {
+        ig.add(normalized);
+      }
+    }
+  }
+  const matcher = (fsPath: string) => {
+    const rel = normalizeFsPath(path.relative(workspaceFolder.uri.fsPath, fsPath));
+    if (!rel || rel.startsWith("..")) {
+      return false;
+    }
+    return ig.ignores(rel);
+  };
+  gitignoreMatcherCache.set(key, matcher);
+  return matcher;
+}
 /**
  * 解析工作区文件夹下的 langs 目录。
  */
@@ -221,12 +295,13 @@ export async function getLangsDirForFolder(
   if (langsDirCache.has(key)) {
     return langsDirCache.get(key)!;
   }
+  const matcher = await getGitignoreMatcher(workspaceFolder);
   const uris = await vscode.workspace.findFiles(
     new vscode.RelativePattern(workspaceFolder.uri, "**/appearance/langs/*.json"),
-    null,
-    1,
   );
-  const result = uris.length > 0 ? path.dirname(uris[0].fsPath) : null;
+  const filtered = matcher ? uris.filter((uri) => !matcher(uri.fsPath)) : uris;
+  filtered.sort((a, b) => a.fsPath.localeCompare(b.fsPath));
+  const result = filtered.length > 0 ? path.dirname(filtered[0].fsPath) : null;
   langsDirCache.set(key, result);
   return result;
 }

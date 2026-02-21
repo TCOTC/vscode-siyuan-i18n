@@ -76,6 +76,15 @@ suite("单项目工作区测试套件", () => {
         "Test message 2",
       ]);
     });
+
+    test("悬停不会读取被 .gitignore 排除的目录", async () => {
+      // 第2行：const msg1 = window.siyuan.languages.cloudIntro1;
+      const hoverText = await getAndVerifyHover(simpleDoc, new vscode.Position(2, 42), [
+        "测试文案1",
+        "Test message 1",
+      ]);
+      assert.ok(!hoverText.includes("Ignored build"), "悬停不应匹配到被忽略的文案");
+    });
   });
 
   suite("test-nested.ts 测试组 - 定义跳转", () => {
@@ -84,6 +93,16 @@ suite("单项目工作区测试套件", () => {
       // 第2行：const msg1 = window.siyuan.languages.cloudIntro1;
       // 在 cloudIntro1 上触发定义跳转
       await getAndVerifyDefinition(simpleDoc, new vscode.Position(2, 42), "zh_CN.json");
+    });
+
+    test("定义跳转不会落在被 .gitignore 排除的目录", async () => {
+      // 第2行：const msg1 = window.siyuan.languages.cloudIntro1;
+      const locations = await getAndVerifyDefinition(simpleDoc, new vscode.Position(2, 42));
+      const hasIgnored = locations.some((loc) => {
+        const fsPath = loc.uri.fsPath.replace(/\\/g, "/");
+        return fsPath.includes("/app/build/") || fsPath.includes("/0_app/build/");
+      });
+      assert.ok(!hasIgnored, "定义跳转不应匹配到被忽略的 build 目录");
     });
   });
 

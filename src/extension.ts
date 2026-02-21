@@ -4,8 +4,6 @@ import { createDefinitionProvider } from "./definition";
 import { createHoverProvider } from "./hover";
 import { createReferenceProvider, createJsonDefinitionProvider } from "./reference";
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
   setExtensionPath(context.extensionPath);
 
