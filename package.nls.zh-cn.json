@@ -3,7 +3,7 @@
   "vscode-siyuan-i18n.extension.description": "为思源笔记 i18n 文案提供悬停提示、定义跳转和引用查找。",
   "vscode-siyuan-i18n.config.definitionLanguages.description": "Ctrl+点击「转到定义」时显示的语言列表（语种代码如 en_US、zh_CN）。留空则使用全部语种（按文件名排序）。",
   "vscode-siyuan-i18n.config.hoverLanguages.description": "悬停时显示的语言列表与排序（语种代码如 en_US、zh_CN）。留空则使用全部语种（按文件名排序）。",
-  "vscode-siyuan-i18n.commands.openAtLine.title": "思源笔记 i18n：打开 i18n 行",
-  "vscode-siyuan-i18n.commands.findReferencesToKey.title": "思源笔记 i18n：查找键的引用",
-  "vscode-siyuan-i18n.commands.checkRipgrep.title": "思源笔记 i18n：检查 ripgrep 是否可用"
+  "vscode-siyuan-i18n.commands.openAtLine.title": "打开 i18n 行",
+  "vscode-siyuan-i18n.commands.findReferencesToKey.title": "查找键的引用",
+  "vscode-siyuan-i18n.commands.checkRipgrep.title": "检查 ripgrep 是否可用"
 }

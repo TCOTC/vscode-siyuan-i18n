@@ -18,15 +18,18 @@
     "commands": [
       {
         "command": "vscode-siyuan-i18n.openAtLine",
-        "title": "%vscode-siyuan-i18n.commands.openAtLine.title%"
+        "title": "%vscode-siyuan-i18n.commands.openAtLine.title%",
+        "category": "%vscode-siyuan-i18n.extension.displayName%"
       },
       {
         "command": "vscode-siyuan-i18n.findReferencesToKey",
-        "title": "%vscode-siyuan-i18n.commands.findReferencesToKey.title%"
+        "title": "%vscode-siyuan-i18n.commands.findReferencesToKey.title%",
+        "category": "%vscode-siyuan-i18n.extension.displayName%"
       },
       {
         "command": "vscode-siyuan-i18n.checkRipgrep",
-        "title": "%vscode-siyuan-i18n.commands.checkRipgrep.title%"
+        "title": "%vscode-siyuan-i18n.commands.checkRipgrep.title%",
+        "category": "%vscode-siyuan-i18n.extension.displayName%"
       }
     ],
     "configuration": {
@@ -55,6 +58,11 @@
           "description": "%vscode-siyuan-i18n.config.hoverLanguages.description%"
         }
       }
+    }
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
     }
   },
   "scripts": {
