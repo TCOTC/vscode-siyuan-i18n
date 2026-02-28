@@ -3,7 +3,6 @@ import * as path from "path";
 import * as fs from "fs";
 import { promises as fsp } from "fs";
 import ts from "typescript";
-import { spawn } from "child_process";
 import ignore from "ignore";
 
 export interface CachedFile {
@@ -94,7 +93,7 @@ export function getLangKeyAtPosition(
     }
 
     return getAccessPath(outermostExpr);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_e) {
     return null;
   }
@@ -180,7 +179,7 @@ export async function getCachedFile(
   let stat: fs.Stats;
   try {
     stat = await fsp.stat(jsonPath);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_e) {
     return null;
   }
@@ -192,14 +191,14 @@ export async function getCachedFile(
   let content: string;
   try {
     content = await fsp.readFile(jsonPath, "utf8");
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_e) {
     return null;
   }
   let parsed: any = null;
   try {
     parsed = JSON.parse(content);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_e) {
     // 解析失败时仅保留 content，用于行号查找
   }
@@ -259,7 +258,7 @@ async function getGitignoreMatcher(
     let content = "";
     try {
       content = await fsp.readFile(uri.fsPath, "utf8");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_e) {
       continue;
     }

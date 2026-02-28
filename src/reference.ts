@@ -2,11 +2,7 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
 import { spawn } from "child_process";
-import {
-  buildChainRipgrepPatterns,
-  escapeRegex,
-  CachedFile,
-} from "./util";
+import { buildChainRipgrepPatterns, escapeRegex, CachedFile } from "./util";
 
 /**
  * 从 JSON 内容前若干行推断当前行的"父路径"，用于嵌套 key。
@@ -227,7 +223,7 @@ export function getRipgrepPath(): { rgPath: string | null; errMsg: string | null
       };
     }
     const binName = process.platform === "win32" ? "rg.exe" : "rg";
-    
+
     // 尝试多个可能的路径
     // 参考了 todo-tree 拓展的 ripgrepPath 函数 https://github.com/Gruntfuggly/todo-tree/blob/a6f60e0ce830c4649ac34fc05e5a1799ec91d151/src/config.js#L82-L113
     // 以及 https://news.ycombinator.com/item?id=20363986 (2019-07-05)
@@ -237,13 +233,13 @@ export function getRipgrepPath(): { rgPath: string | null; errMsg: string | null
       path.join(appRoot, "node_modules", "vscode-ripgrep", "bin", binName),
       path.join(appRoot, "node_modules.asar.unpacked", "vscode-ripgrep", "bin", binName),
     ];
-    
+
     for (const rgPath of possiblePaths) {
       if (fs.existsSync(rgPath)) {
         return { rgPath, errMsg: null };
       }
     }
-    
+
     return {
       rgPath: null,
       errMsg: `无法从以下路径找到 ripgrep 可执行文件:\n[${possiblePaths.join("]\n[")}]`,

@@ -2,7 +2,11 @@ import * as vscode from "vscode";
 import { setExtensionPath, CachedFile } from "./util";
 import { createDefinitionProvider } from "./definition";
 import { createHoverProvider } from "./hover";
-import { createReferenceProvider, createJsonDefinitionProvider, checkRipgrepAvailable } from "./reference";
+import {
+  createReferenceProvider,
+  createJsonDefinitionProvider,
+  checkRipgrepAvailable,
+} from "./reference";
 
 export function activate(context: vscode.ExtensionContext) {
   setExtensionPath(context.extensionPath);
@@ -74,7 +78,10 @@ export function activate(context: vscode.ExtensionContext) {
           );
         } else {
           // 找不到 key 时光标在行首
-          selection = new vscode.Range(new vscode.Position(lineIndex, 0), new vscode.Position(lineIndex, 0));
+          selection = new vscode.Range(
+            new vscode.Position(lineIndex, 0),
+            new vscode.Position(lineIndex, 0),
+          );
         }
 
         await vscode.window.showTextDocument(doc, {
@@ -85,10 +92,7 @@ export function activate(context: vscode.ExtensionContext) {
     ),
   );
 
-  const selector = [
-    { language: "javascript" },
-    { language: "typescript" },
-  ];
+  const selector = [{ language: "javascript" }, { language: "typescript" }];
 
   // 注册定义提供程序（用于 TypeScript/JavaScript 中的 i18n key）
   context.subscriptions.push(
@@ -126,9 +130,7 @@ export function activate(context: vscode.ExtensionContext) {
       const refModule = await import("./reference.js");
       const key = refModule.getJsonKeyAtPosition(editor.document, editor.selection.active);
       if (!key) {
-        vscode.window.showWarningMessage(
-          '请将光标放在语言文件的键名上（如 "staff" 的 staff）。',
-        );
+        vscode.window.showWarningMessage('请将光标放在语言文件的键名上（如 "staff" 的 staff）。');
         return;
       }
       const locations = await refModule.findReferencesToKey(
