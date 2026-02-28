@@ -3,7 +3,7 @@
   "publisher": "siyuan-note",
   "displayName": "%vscode-siyuan-i18n.extension.displayName%",
   "description": "%vscode-siyuan-i18n.extension.description%",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.90.0"
   },

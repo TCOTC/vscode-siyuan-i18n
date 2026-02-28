@@ -1,6 +1,0 @@
-{
-  "vscode-siyuan-i18n.extension.displayName": "思源笔记 i18n",
-  "vscode-siyuan-i18n.extension.description": "为 window.siyuan.languages.* 提供「转到定义」与悬停，跳转至 app/appearance/langs 下语种 JSON 并查看多语种译文。",
-  "vscode-siyuan-i18n.config.definitionLanguages.description": "Ctrl+点击「转到定义」时显示的语言列表（语种代码如 en_US、zh_CN）。留空则使用全部语种（按文件名排序）。",
-  "vscode-siyuan-i18n.config.hoverLanguages.description": "悬停时显示的语言列表与排序（语种代码如 en_US、zh_CN）。留空则使用全部语种（按文件名排序）。"
-}

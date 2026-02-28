@@ -1,11 +1,29 @@
+# Development configuration
 .vscode/**
 .vscode-test/**
-src/**
+.vscode-test.mjs
+.editorconfig
 .gitignore
-.yarnrc
-vsc-extension-quickstart.md
+.npmrc
+
+# Source files
+src/**
+**/*.ts
+**/*.map
+
+# Build configuration
 **/tsconfig.json
 **/eslint.config.mjs
-**/*.map
-**/*.ts
-**/.vscode-test.**
+
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+
+# IDE
+.idea/**
+
+# Documentation
+CONTRIBUTING.md
+
+# Test files
+**/test/**
