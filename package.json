@@ -1,9 +1,18 @@
 {
   "name": "vscode-siyuan-i18n",
-  "publisher": "siyuan-note",
+  "publisher": "jeffrey-chen",
   "displayName": "%vscode-siyuan-i18n.extension.displayName%",
   "description": "%vscode-siyuan-i18n.extension.description%",
   "version": "1.0.0",
+  "license": "MIT",
+  "homepage": "https://github.com/TCOTC/vscode-siyuan-i18n",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TCOTC/vscode-siyuan-i18n.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TCOTC/vscode-siyuan-i18n/issues"
+  },
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -66,12 +75,14 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "pnpm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "pnpm run compile && pnpm run lint",
+    "vscode:prepublish": "npm run compile:production",
+    "compile": "node esbuild.config.js",
+    "compile:production": "node esbuild.config.js --production",
+    "watch": "node esbuild.config.js --watch",
+    "pretest": "npm run compile && npm run lint",
     "lint": "oxlint src",
     "format": "oxfmt --write src",
+    "package": "npx @vscode/vsce package",
     "test": "vscode-test"
   },
   "dependencies": {
@@ -80,9 +91,10 @@
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "~25.3.0",
-    "@types/vscode": "^1.109.0",
+    "@types/vscode": "^1.90.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
+    "esbuild": "^0.27.3",
     "oxfmt": "^0.34.0",
     "oxlint": "^1.49.0",
     "typescript": "^5.9.3"

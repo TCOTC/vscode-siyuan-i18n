@@ -24,7 +24,7 @@ suite("单项目工作区测试套件", () => {
     await vscode.commands.executeCommand("workbench.action.closeAuxiliaryBar");
 
     // 初始化路径（只运行一次）
-    const ext = vscode.extensions.getExtension("siyuan-note.vscode-siyuan-i18n");
+    const ext = vscode.extensions.getExtension("jeffrey-chen.vscode-siyuan-i18n");
     if (!ext) {
       throw new Error("找不到扩展");
     }

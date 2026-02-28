@@ -1,3 +1,11 @@
+# 开发笔记
+
+手动上传拓展：
+
+参考链接：https://code.visualstudio.com/api/working-with-extensions/publishing-extension#publish-an-extension
+
+手动操作，vsce package 将扩展程序打包成可安装的 VSIX 格式，然后将其上传到 [Visual Studio Marketplace 发布者管理页面](https://marketplace.visualstudio.com/manage/publishers)
+
 # 贡献指南
 
 ## 😊 开始前请阅读
@@ -12,20 +20,20 @@
 
 ### 前置要求
 
-- Node.js 16+
-- pnpm（推荐）或 npm
+- Node.js 20+
+- npm
 
 ### 安装依赖
 
 ```bash
-pnpm install
+npm install
 ```
 
 ## 立即开始运行
 
 1. **启动开发模式**
    - 按 `F5` 打开加载了扩展的新 VS Code 窗口
-   - 或手动运行：`pnpm run watch`
+   - 或手动运行：`npm run watch`
 
 2. **测试你的修改**
    - 在 VS Code 中编辑代码
@@ -45,7 +53,7 @@ pnpm install
 ### 自动化测试
 
 ```bash
-pnpm run test
+npm run test
 ```
 
 或在 VS Code 中：
@@ -56,8 +64,8 @@ pnpm run test
 ### 代码检查
 
 ```bash
-pnpm run lint      # 检查代码质量
-pnpm run format    # 自动格式化代码
+npm run lint      # 检查代码质量
+npm run format    # 自动格式化代码
 ```
 
 ## 编写代码
@@ -72,7 +80,7 @@ pnpm run format    # 自动格式化代码
 
 1. 创建一个新分支：`git checkout -b feature/your-feature`
 2. 编写测试用例
-3. 确保所有测试通过：`pnpm run pretest`
+3. 确保所有测试通过：`npm run pretest`
 4. 提交代码并推送分支
 5. 创建拉取请求，关联相关 issue
 
