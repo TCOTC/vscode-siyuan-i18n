@@ -1,5 +1,7 @@
 # VS Code 拓展：思源笔记 i18n
 
+[Open VSX Registry](https://open-vsx.org/extension/jeffrey-chen/vscode-siyuan-i18n) | [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=jeffrey-chen.vscode-siyuan-i18n)
+
 ## 功能特性
 
 打开思源笔记源代码 TypeScript 文件，将光标放在文案 `window.siyuan.languages.xxx` 的最后一部分 `xxx` 上：
