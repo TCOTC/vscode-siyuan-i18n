@@ -1,9 +1,10 @@
 {
   "name": "vscode-siyuan-i18n",
   "publisher": "jeffrey-chen",
-  "displayName": "%vscode-siyuan-i18n.extension.displayName%",
-  "description": "%vscode-siyuan-i18n.extension.description%",
-  "version": "1.0.0",
+  "displayName": "SiYuan i18n",
+  "description": "Provides hover tooltips, definition jump, and reference search for SiYuan Note i18n texts. 为思源笔记 i18n 文案提供悬停提示、定义跳转和引用查找。",
+  "version": "1.0.1",
+  "icon": "icon.png",
   "license": "MIT",
   "homepage": "https://github.com/TCOTC/vscode-siyuan-i18n",
   "repository": {
