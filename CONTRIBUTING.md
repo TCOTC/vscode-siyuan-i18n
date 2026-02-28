@@ -1,10 +1,10 @@
 # 开发笔记
 
-手动上传拓展：
+发布版本：
 
-参考链接：https://code.visualstudio.com/api/working-with-extensions/publishing-extension#publish-an-extension
+Visual Studio Marketplace：执行 `npm run package` 将扩展程序打包成可安装的 VSIX 格式，然后将其上传到 [发布者管理页面](https://marketplace.visualstudio.com/manage/publishers)（参考链接：https://code.visualstudio.com/api/working-with-extensions/publishing-extension#publish-an-extension ）
 
-手动操作，vsce package 将扩展程序打包成可安装的 VSIX 格式，然后将其上传到 [Visual Studio Marketplace 发布者管理页面](https://marketplace.visualstudio.com/manage/publishers)
+Open VSX Registry：创建 `v*.*.*` 标签，使用 `git push --tags --verbose` 推送到 GitHub，工作流自动打包发布
 
 # 贡献指南
 
